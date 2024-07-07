@@ -2,9 +2,12 @@ name: Upload Website
 
 on:
   push:
-    branches: ["main"] 
-  pull_request:
-    branches:  ["main"] 
+    branches:
+    - master
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
@@ -17,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '17'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
@@ -25,12 +28,15 @@ jobs:
       - name: Build app
         run: npm run build
 
+        # Deploy to the S3 server
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-3
+          aws-region: 'eu-west-3'
+          aws-role-to-assume: 'arn:aws:iam::767398121285:role/github'
+          aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
 
       - name: Deploy static site to S3 bucket
-        run: aws s3 sync build/ s3://studi-frontend 
+        run: aws s3 sync build/ s3://studi-react-website
