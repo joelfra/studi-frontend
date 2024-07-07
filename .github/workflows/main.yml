@@ -3,7 +3,7 @@ name: Upload Website
 on:
   push:
     branches:
-    - master
+    - feature
 
 permissions:
   id-token: write
